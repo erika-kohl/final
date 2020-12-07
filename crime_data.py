@@ -5,19 +5,6 @@ import os
 import csv
 from bs4 import BeautifulSoup
 
-#API_key = "43vyNBaRamuvatb61ifsdblzCXp6qmkYz2ZJs9Hs"
-#API 3 - Gets Crime counts by category based on State
-response = requests.get("https://api.usa.gov/crime/fbi/sapi/api/arrest/states/offense/IL/all/2017/2019?API_KEY=43vyNBaRamuvatb61ifsdblzCXp6qmkYz2ZJs9Hs")
-
-#Extra API -  Gets State population by year
-#response = requests.get("https://datausa.io/api/data?drilldowns=State&measures=Population&year=2016")
-
-#API 1 - Gets Demographics from City, State (use string concatanation to create URL)
-#response= requests.get("https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-cities-demographics&q=&facet=city&facet=state&refine.city=Memphis&refine.state=Tennessee")
-
-#print(response.status_code)
-#print(response.json())
-
 def create_database(db_file):
     '''
     This function creates the database which will be used to store all the data
@@ -109,7 +96,6 @@ def create_safe_cities_table(cur, conn):
     soup = BeautifulSoup(page.content, 'html.parser')
     tags = soup.find_all("h3")
     for location in tags:
-        #title = location.find("a")
         city_state = location.text
         city_list.append(city_state)
         if len(city_list) >= 100:

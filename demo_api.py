@@ -43,7 +43,6 @@ def create_city_demos_table(cur, conn):
             city_word_list = city.split(" ")
             if city_word_list[0] == "St.":
                 city = "Saint " + city_word_list[1]
-
             try:
                 #get demo data from API url
                 url = "https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-cities-demographics&q=&facet=city&facet=state&refine.city=" + city + "&refine.state=" + state

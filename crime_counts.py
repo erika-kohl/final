@@ -3,12 +3,8 @@ import json
 import sqlite3
 import os
 import csv
-from bs4 import BeautifulSoup
 
 API_key = "43vyNBaRamuvatb61ifsdblzCXp6qmkYz2ZJs9Hs"
-#API 3 - Gets Crime counts by category based on State
-#replace IL with for loop through all state abbreviations
-response = requests.get("https://api.usa.gov/crime/fbi/sapi/api/arrest/states/offense/IL/all/2017/2018?API_KEY=43vyNBaRamuvatb61ifsdblzCXp6qmkYz2ZJs9Hs")
 
 def create_database(db_file):
     '''
@@ -25,7 +21,7 @@ def create_state_crime_counts_table(cur,conn):
     Source:https://crime-data-explorer.fr.cloud.gov/api
     '''
     #create state crimes table to add this data, uses id keys from Dangerous_Cities
-    cur.execute("CREATE TABLE IF NOT EXISTS State_Crimes (state_id TEXT, year INTEGER, total_arrests INTEGER, ag_assault INTEGER, arson INTEGER, burglary INTEGER, disorderly INTEGER,  drug_abuse INTEGER, drunkenness INTEGER, dui INTEGER, embezzlement INTEGER, family_o INTEGER, forgery INTEGER, fraud INTEGER, gambling INTEGER, larceny INTEGER, liquor INTEGER, loitering INTEGER, manslaughter INTEGER, murder INTEGER, mvt INTEGER, other INTEGER, prostitution INTEGER, rape INTEGER, robbery INTEGER, sex_o INTEGER, s_assault INTEGER, stolen_p INTEGER, suspicion INTEGER, trafficking INTEGER, vagrancy INTEGER, vandalism INTEGER, weapons INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS State_Crimes (state_id TEXT, year INTEGER, total_arrests INTEGER, ag_assault INTEGER, arson INTEGER, burglary INTEGER, disorderly INTEGER, drug_abuse INTEGER, drunkenness INTEGER, dui INTEGER, embezzlement INTEGER, family_o INTEGER, forgery INTEGER, fraud INTEGER, gambling INTEGER, larceny INTEGER, liquor INTEGER, loitering INTEGER, manslaughter INTEGER, murder INTEGER, mvt INTEGER, other INTEGER, prostitution INTEGER, rape INTEGER, robbery INTEGER, sex_o INTEGER, s_assault INTEGER, stolen_p INTEGER, suspicion INTEGER, trafficking INTEGER, vagrancy INTEGER, vandalism INTEGER, weapons INTEGER)")
     
     #limit to 25 lines at a time
     cur.execute('SELECT COUNT(*) FROM State_Crimes')
