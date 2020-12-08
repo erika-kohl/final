@@ -29,7 +29,7 @@ def create_state_crime_counts_table(cur,conn):
     if row_count == 0:
         for i in range(25):
             #get state code from state table
-            cur.execute('SELECT id FROM States WHERE row = ?', (i,))
+            cur.execute('SELECT abbreviation FROM States WHERE id = ?', (i,))
             state_id = cur.fetchone()[0]
             try:
                 #get state crime data from API url
@@ -78,7 +78,7 @@ def create_state_crime_counts_table(cur,conn):
     elif row_count == 25:
          for i in range(25, 50):
             #get state code from state table
-            cur.execute('SELECT id FROM States WHERE row = ?', (i,))
+            cur.execute('SELECT abbreviation FROM States WHERE id = ?', (i,))
             state_id = cur.fetchone()[0]
             try:
                 #get state crime data from API url
@@ -127,7 +127,7 @@ def create_state_crime_counts_table(cur,conn):
     elif row_count == 50:
          for i in range(25):
             #get state code from state table
-            cur.execute('SELECT id FROM States WHERE row = ?', (i,))
+            cur.execute('SELECT abbreviation FROM States WHERE id = ?', (i,))
             state_id = cur.fetchone()[0]
             try:
                 #get state crime data from API url
@@ -176,7 +176,7 @@ def create_state_crime_counts_table(cur,conn):
     elif row_count == 75:
          for i in range(25,50):
             #get state code from state table
-            cur.execute('SELECT id FROM States WHERE row = ?', (i,))
+            cur.execute('SELECT abbreviation FROM States WHERE id = ?', (i,))
             state_id = cur.fetchone()[0]
             try:
                 #get state crime data from API url
