@@ -299,53 +299,6 @@ def create_city_demos_table(cur, conn):
             cur.execute('INSERT INTO City_Demos (city_id, type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (city_id, safety_type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop))
             conn.commit()
 
- #   elif row_count == 73:
- #       #loop through dangerous cities table joined with state table to grab city and longform state to use in API request
- #       for i in range(25):
- #           #i = city_count + 1
- #           cur.execute('SELECT Safe_Cities.city, States.state_name FROM Safe_Cities JOIN States ON Safe_Cities.state_id = States.id WHERE Safe_Cities.id = ?', (i,))
- #           city_state_tuplist = cur.fetchall()
- #           city = city_state_tuplist[0][0]
- #           state = city_state_tuplist[0][1]
- #           #correction for the different spellings of 'saint'
- #           city_word_list = city.split(" ")
- #           if city_word_list[0] == "St.":
- #               city = "Saint " + city_word_list[1]
-
-#            try:
-#                #get demo data from API url
-#                url = "https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-cities-demographics&q=&facet=city&facet=state&refine.city=" + city + "&refine.state=" + state
-#                r = requests.get(url)
-#            except:
-#                print("error when reading from url")
-#            #store this city's JSON data from the API into a dictionary
-#            demo_dict = json.loads(r.text)
-            #now add this JSON data to our database in a new table, 1 row for each city
-#            city_id = i
-#            if len(demo_dict["records"]) == 0:
-#                continue
-#            safety_type = "S"
-#            total_pop = demo_dict["records"][0]["fields"]["total_population"]
-#            female_pop = demo_dict["records"][0]["fields"]["female_population"]
-#            male_pop = demo_dict["records"][0]["fields"]["male_population"]
-#            foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
-#            med_age = float(demo_dict["records"][0]["fields"]["median_age"])
-
-#            for j in range(0, len(demo_dict["records"])):
-#                if demo_dict["records"][j]["fields"]["race"] == "White":
-#                    white_pop = demo_dict["records"][j]["fields"]["count"]
-#                elif demo_dict["records"][j]["fields"]["race"] == "Black or African-American":
-#                    black_pop = demo_dict["records"][j]["fields"]["count"]
-#                elif demo_dict["records"][j]["fields"]["race"] == "Asian":
-#                    asian_pop = demo_dict["records"][j]["fields"]["count"]
-#                elif demo_dict["records"][j]["fields"]["race"] == "Hispanic or Latino":
-#                    latin_pop = demo_dict["records"][j]["fields"]["count"]
-#                else: 
-#                    na_pop = demo_dict["records"][j]["fields"]["count"] 
-
-#            cur.execute('INSERT INTO City_Demos (city_id, type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (city_id, safety_type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop))
-#            conn.commit()
-
     # was 84
     elif row_count == 73:
         #loop through safe cities table joined with state table to grab city and longform state to use in API request
