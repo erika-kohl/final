@@ -19,16 +19,16 @@ def create_state_table(cur, conn):
     This function creates the States lookup table and adds it to the database.It sets the abbreviation for each state as the primary key since each is unique."
     '''
     
-    states = ["Alabama","Alaska", "Arizona","Arkansas","California","Colorado","Connecticut","District of Columbia","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"]
-    state_abr = ["AL","AK","AZ","AR","CA","CO","CT", "DC","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]
+    states = ["Alabama","Alaska", "Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Colombia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"]
+    state_abr = ["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]
     
-    cur.execute("CREATE TABLE IF NOT EXISTS States (row INTEGER, id TEXT PRIMARY KEY, title TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS States (id INTEGER PRIMARY KEY, abbreviation TEXT , state_name TEXT)")
 
     cur.execute('SELECT COUNT(*) FROM States')
     row_count = cur.fetchone()[0]
     if row_count == 0:
         for i in range(len(states)):
-            cur.execute("INSERT INTO States (row,id,title) VALUES (?,?,?)",(i,state_abr[i],states[i]))
+            cur.execute("INSERT INTO States (id,abbreviation,state_name) VALUES (?,?,?)",(i,state_abr[i],states[i]))
         conn.commit() 
 
 def create_dangerous_cities_table(cur, conn):
@@ -57,11 +57,11 @@ def create_dangerous_cities_table(cur, conn):
         state = separated_location[1]
         stateList.append(state)
 
-    cur.execute("CREATE TABLE IF NOT EXISTS Dangerous_Cities (id INTEGER PRIMARY KEY, city TEXT, state TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Dangerous_Cities (id INTEGER PRIMARY KEY, city TEXT, state_id INTEGER)")
     #uncomment this if you want to collect all 100 rows at once
     '''
     for i in range(len(stateList)):
-        cur.execute("INSERT INTO Dangerous_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
+        cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
     conn.commit() 
     '''
     # want the loop to run 25 times
@@ -69,20 +69,36 @@ def create_dangerous_cities_table(cur, conn):
     row_count = cur.fetchone()[0]
     if row_count == 0:
         for i in range(25):
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
+            #insert state_id as foreign key
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
         conn.commit() 
     elif row_count == 25:
         for i in range(25, 50):
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
+            #insert state_id as foreign key
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
+        conn.commit()  
     elif row_count == 50:
         for i in range(50, 75):
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
+            #insert state_id as foreign key
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
+        conn.commit()  
     elif row_count == 75:
         for i in range(75, 100):
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
+            #insert state_id as foreign key
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
+        conn.commit()  
 
 def create_safe_cities_table(cur, conn):
     '''
@@ -111,11 +127,11 @@ def create_safe_cities_table(cur, conn):
         state = separated_location[1]
         stateList.append(state)
 
-    cur.execute("CREATE TABLE IF NOT EXISTS Safe_Cities (id INTEGER PRIMARY KEY, city TEXT, state TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Safe_Cities (id INTEGER PRIMARY KEY, city TEXT, state_id INTEGER)")
     #uncomment this if you want to collect all 100 rows at once
     '''
     for i in range(len(stateList)):
-        cur.execute("INSERT INTO Dangerous_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
+        cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
     conn.commit() 
     '''
     # want the loop to run 25 times
@@ -123,20 +139,33 @@ def create_safe_cities_table(cur, conn):
     row_count = cur.fetchone()[0]
     if row_count == 0:
         for i in range(25):
-            cur.execute("INSERT INTO Safe_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
+        conn.commit()
     elif row_count == 25:
         for i in range(25, 50):
-            cur.execute("INSERT INTO Safe_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
+        conn.commit()
     elif row_count == 50:
         for i in range(50, 75):
-            cur.execute("INSERT INTO Safe_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
-    elif row_count == 75:
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
+        conn.commit()  
+    #elif row_count == 75:
+    else:
         for i in range(75, 100):
-            cur.execute("INSERT INTO Safe_Cities (id,city,state) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-        conn.commit() 
+            state = stateList[i]
+            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+            state_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
+        conn.commit()  
 
 def main():
     # SETUP DATABASE AND TABLE
