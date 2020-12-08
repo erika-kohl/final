@@ -63,6 +63,12 @@ def create_city_demos_table(cur, conn):
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
 
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
+
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
                     white_pop = demo_dict["records"][j]["fields"]["count"]
@@ -110,6 +116,12 @@ def create_city_demos_table(cur, conn):
             male_pop = demo_dict["records"][0]["fields"]["male_population"]
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
+
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
 
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
@@ -159,6 +171,12 @@ def create_city_demos_table(cur, conn):
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
 
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
+
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
                     white_pop = demo_dict["records"][j]["fields"]["count"]
@@ -207,6 +225,12 @@ def create_city_demos_table(cur, conn):
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
 
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
+
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
                     white_pop = demo_dict["records"][j]["fields"]["count"]
@@ -253,6 +277,12 @@ def create_city_demos_table(cur, conn):
             male_pop = demo_dict["records"][0]["fields"]["male_population"]
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
+
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
 
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
@@ -349,28 +379,29 @@ def create_city_demos_table(cur, conn):
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
 
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
+
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
-                    white_pop = 0
                     white_pop = demo_dict["records"][j]["fields"]["count"]
                 elif demo_dict["records"][j]["fields"]["race"] == "Black or African-American":
-                    black_pop = 0
                     black_pop = demo_dict["records"][j]["fields"]["count"]
                 elif demo_dict["records"][j]["fields"]["race"] == "Asian":
-                    asian_pop = 0
                     asian_pop = demo_dict["records"][j]["fields"]["count"]
                 elif demo_dict["records"][j]["fields"]["race"] == "Hispanic or Latino":
-                    latin_pop = 0
                     latin_pop = demo_dict["records"][j]["fields"]["count"]
                 else: 
-                    na_pop = 0
                     na_pop = demo_dict["records"][j]["fields"]["count"] 
 
             cur.execute('INSERT INTO City_Demos (city_id, type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (city_id, safety_type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop))
             conn.commit()
 
     # was 93
-    elif row_count == 81:
+    elif row_count == 82:
         #loop through safe cities table joined with state table to grab city and longform state to use in API request
         for i in range(50, 75):
             #i = city_count + 1
@@ -402,6 +433,12 @@ def create_city_demos_table(cur, conn):
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
 
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
+
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
                     white_pop = 0
@@ -422,7 +459,7 @@ def create_city_demos_table(cur, conn):
             cur.execute('INSERT INTO City_Demos (city_id, type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (city_id, safety_type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop))
             conn.commit()
 
-    #elif row_count == 105:
+    # row_count == 94, makes rows to 103
     else:
         #loop through safe cities table joined with state table to grab city and longform state to use in API request
         for i in range(75,100):
@@ -455,6 +492,12 @@ def create_city_demos_table(cur, conn):
             male_pop = demo_dict["records"][0]["fields"]["male_population"]
             foreign_pop = demo_dict["records"][0]["fields"]["foreign_born"]
             med_age = float(demo_dict["records"][0]["fields"]["median_age"])
+
+            white_pop = 0
+            black_pop = 0
+            asian_pop = 0
+            latin_pop = 0
+            na_pop = 0
 
             for j in range(0, len(demo_dict["records"])):
                 if demo_dict["records"][j]["fields"]["race"] == "White":
