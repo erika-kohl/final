@@ -47,8 +47,12 @@ def arrests_in_2018(cur, conn):
     return total
 
 #for each state, what are they most arrested for? combine data for 2017 and 2018 for each state
-def most_arrests_for(cur, conn):
+def most_arrests_for(cur, conn, state):
     #return string
+    pass
+
+#use most_arrests_for 
+def us_most_arrests_categories_viz(data):
     pass
 
 #using demo_api.py and table City_Demos
@@ -56,7 +60,13 @@ def most_arrests_for(cur, conn):
 
 def main():
     cur, conn = access_database('crime.db')
+
     print("The total number of arrests in 2017 in the United States is " + str(arrests_in_2017(cur, conn)) + ".")
     print("The total number of arrests in 2018 in the United States is " + str(arrests_in_2018(cur, conn)) + ".")
+    if arrests_in_2017(cur, conn) < arrests_in_2018(cur, conn):
+        print("The total number of arrests increased from 2017 to 2018.")
+    else:
+        print("The total number of arrests decreased from 2017 to 2018.")
+
 
 main()
