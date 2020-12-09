@@ -368,6 +368,42 @@ def average_age_in_dangerous_city(cur, conn):
     average_age_in_dangerous_city = round((age_total/number_of_ages), 1)
     #print("The average age in a dangerous city is " + str(average_age_in_dangerous_city) + " year old.")
     return str(average_age_in_dangerous_city)
+
+def plot_median_ages_dangerous_cites(cur, conn):
+    '''
+    This function creates a scatter plot of the available median ages of cities over 65k population size and listed as dangerous.
+    '''
+    cur.execute('SELECT med_age FROM City_Demos WHERE type = "D"')
+    dangerous_city_ages = cur.fetchall()
+    age_list = []
+    cur.execute('SELECT Dangerous_Cities.city, States.abbreviation FROM Dangerous_Cities JOIN States on Dangerous_Cities.state_id = States.id JOIN City_Demos ON Dangerous_Cities.id = City_Demos.city_id WHERE City_Demos.type = "D"')
+    dangerous_city_names = cur.fetchall()
+    location_list = []
+
+    for age_value in dangerous_city_ages:
+        age = str(age_value)
+        add_age = age.strip("(,)")
+        age_list.append(float(add_age))
+
+    for city_value in dangerous_city_names:
+        city = str(city_value[0])
+        state = str(city_value[1])
+        add_city = city.strip("(,)")
+        add_state = state.strip("(,)")
+        location_list.append(add_city + ", " + add_state)
+   
+   #create scatter plot
+    plt.figure()
+    fig,ax = plt.subplots()
+    plt.subplots_adjust(bottom=0.20, right=0.85)
+    plt.xticks(rotation=90, fontsize=6)
+    ax.scatter(location_list, age_list, color='r')
+    plt.axhline(y=34.3, color='b', linestyle='-', label='Average\nMedian\nAge')
+    ax.set_xlabel('Dangerous Cities \n (in order of most dangerous to less)')
+    ax.set_ylabel('Median Age')
+    ax.set_title('Median Age for U.S. Citizens in Dangerous Cities \n with a Population over 65K')
+    #fig.savefig("Median_Age_in_Dangerous_Cities.jpg")
+    plt.show()
     
 def average_age_in_safe_city(cur, conn):
     #find average median age for safe cities
@@ -391,6 +427,43 @@ def average_age_in_safe_city(cur, conn):
     #print("The average age in a safe city is " + str(average_age_in_safe_city) + " year old.")
 
     return str(average_age_in_safe_city)
+
+def plot_median_ages_safe_cites(cur, conn):
+    '''
+    This function creates a scatter plot of the available median ages of cities over 65k population size and listed as safe.
+    '''
+    cur.execute('SELECT med_age FROM City_Demos WHERE type = "S"')
+    safe_city_ages = cur.fetchall()
+    age_list = []
+    cur.execute('SELECT Safe_Cities.city, States.abbreviation FROM Safe_Cities JOIN States on Safe_Cities.state_id = States.id JOIN City_Demos ON Safe_Cities.id = City_Demos.city_id WHERE City_Demos.type = "S"')
+    safe_city_names = cur.fetchall()
+    location_list = []
+
+    for age_value in safe_city_ages:
+        age = str(age_value)
+        add_age = age.strip("(,)")
+        age_list.append(float(add_age))
+
+    for city_value in safe_city_names:
+        city = str(city_value[0])
+        state = str(city_value[1])
+        add_city = city.strip("(,)")
+        add_state = state.strip("(,)")
+        location_list.append(add_city + ", " + add_state)
+    
+    #create scatter plot
+    plt.figure()
+    fig,ax = plt.subplots()
+    plt.subplots_adjust(bottom=0.20, right=0.85)
+    plt.xticks(rotation=90, fontsize=6)
+    ax.scatter(location_list, age_list, color='g')
+    plt.axhline(y=39.4, color='b', linestyle='-', label='Average\nMedian\nAge')
+    plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
+    ax.set_xlabel('Safest Cities \n (in order of most safe to less)')
+    ax.set_ylabel('Median Age')
+    ax.set_title('Median Age for U.S. Citizens in Safest Cities \n with a Population over 65K')
+    #fig.savefig("Median_Age_in_Dangerous_Cities.jpg")
+    plt.show()
 
 def arrests_increase_or_decrease(cur, conn):
     if arrests_in_year(cur, conn, 2017) < arrests_in_year(cur, conn, 2018):
@@ -424,5 +497,7 @@ def main():
     #calling of 3 OR 5 visualizations
     us_most_arrests_categories_viz(cur, conn, 2017, 2018)
     us_most_arrests_categories_viz_without_other(cur, conn, 2017, 2018)
+    plot_median_ages_dangerous_cites(cur, conn)
+    plot_median_ages_safe_cites(cur, conn)
 
 main()
