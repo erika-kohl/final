@@ -471,7 +471,7 @@ def create_city_demos_table(cur, conn):
 
             cur.execute('INSERT INTO City_Demos (city_id, type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (city_id, safety_type, total_pop, female_pop, male_pop, foreign_pop, med_age, white_pop, black_pop, asian_pop, latin_pop, na_pop))
             conn.commit()
-    
+
 
 def main():
     # SETUP DATABASE AND TABLE
