@@ -413,7 +413,7 @@ def create_city_demos_table(cur, conn):
             conn.commit()
 
     # row_count == 94, makes rows to 103
-    else:
+    elif row_count == 94:
         #loop through safe cities table joined with state table to grab city and longform state to use in API request
         for i in range(75,100):
             #i = city_count + 1
