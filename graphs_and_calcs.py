@@ -42,12 +42,13 @@ def state_with_most_dangerous_cities(cur, conn):
         dangerous_state_counts[state] = dangerous_state_counts.get(state, 0) + 1
     
     ranked_dangerous_states = sorted(dangerous_state_counts.items(), key=lambda x: x[1], reverse=True) 
-    print("_______ States with their Counts of Top 100 Dangerous Cities _______") 
+    #print("_______ States with their Counts of Top 100 Dangerous Cities _______") 
     
-    for state_ranking in ranked_dangerous_states:
-        print(state_ranking)
+    #for state_ranking in ranked_dangerous_states:
+       # print(state_ranking)
     
     #print(ranked_dangerous_states)
+    return str(ranked_dangerous_states)
 
 #using crime_data.py and table Safe_Cities
 def state_with_most_safe_cities(cur, conn):
@@ -72,10 +73,13 @@ def state_with_most_safe_cities(cur, conn):
         safe_state_counts[state] = safe_state_counts.get(state, 0) + 1
     
     ranked_safe_states = sorted(safe_state_counts.items(), key=lambda x: x[1], reverse=True) 
-    print("_______ States with their Counts of Top 100 Safest Cities _______") 
+    #print("_______ States with their Counts of Top 100 Safest Cities _______") 
     
-    for state_ranking in ranked_safe_states:
-        print(state_ranking)
+    #for state_ranking in ranked_safe_states:
+       # print(state_ranking)
+    
+    return str(ranked_safe_states)
+
 
 #using crime_counts.py and table State_Crimes
 #total number of arrests in 2017 or 2018 for all states
@@ -136,7 +140,15 @@ def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
     sizes = []
 
     for category in dict_of_category_and_count.keys():
-        labels.append(category)
+        if category == "s_assault":
+            category_name = "Simple Assault"
+        elif category == "drug_abuse":
+            category_name = "Drug Abuse"
+        elif category == "dui":
+            category_name = category.upper()
+        else:
+            category_name = category.capitalize()
+        labels.append(category_name)
     for count in dict_of_category_and_count.values():
         sizes.append(count)
 
@@ -169,7 +181,15 @@ def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
     sizes_two = []
 
     for category in dict_category_and_count.keys():
-        labels_two.append(category)
+        if category == "s_assault":
+            category_name = "Simple Assault"
+        elif category == "drug_abuse":
+            category_name = "Drug Abuse"
+        elif category == "dui":
+            category_name = category.upper()
+        else:
+            category_name = category.capitalize()
+        labels_two.append(category_name)
     for count in dict_category_and_count.values():
         sizes_two.append(count)
 
@@ -185,11 +205,10 @@ def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
 #perhaps which demographic most populates each state?
 
 #average median age for dangerous cities vs safe cities
-def average_age_by_city_type(cur, conn):
+def average_age_in_dangerous_city(cur, conn):
     #find average median age for dangerous cities
     cur.execute('SELECT med_age FROM City_Demos WHERE type = "D"')
     dangerous_city_ages = cur.fetchall()
-    print(dangerous_city_ages)
     age_list = []
 
     for value in dangerous_city_ages:
@@ -205,8 +224,10 @@ def average_age_by_city_type(cur, conn):
         number_of_ages += 1
 
     average_age_in_dangerous_city = round((age_total/number_of_ages), 1)
-    print("The average age in a dangerous city is " + str(average_age_in_dangerous_city) + " year old.")
-
+    #print("The average age in a dangerous city is " + str(average_age_in_dangerous_city) + " year old.")
+    return str(average_age_in_dangerous_city)
+    
+def average_age_in_safe_city(cur, conn):
     #find average median age for safe cities
     cur.execute('SELECT med_age FROM City_Demos WHERE type = "S"')
     safe_city_ages = cur.fetchall()
@@ -225,7 +246,10 @@ def average_age_by_city_type(cur, conn):
         number_of_ages += 1
 
     average_age_in_safe_city = round((age_total/number_of_ages), 1)
-    print("The average age in a safe city is " + str(average_age_in_safe_city) + " year old.")
+    #print("The average age in a safe city is " + str(average_age_in_safe_city) + " year old.")
+
+    return str(average_age_in_safe_city)
+
 
 def main():
     cur, conn = access_database('crime.db')
@@ -240,7 +264,12 @@ def main():
     write_file("crime_information.txt", "The most amount of arrests for Michigan in 2017 (exluding the other category) come from " + most_arrests_for(cur, conn, 'MI', 2017) + ".\n")
     write_file("crime_information.txt", "The most amount of arrests for Michigan in 2018 (exluding the other category) come from " + most_arrests_for(cur, conn, 'MI', 2018) + ".\n")
     write_file("crime_information.txt", "The most amount of arrests for Delaware in 2017 (exluding the other category) come from " + most_arrests_for(cur, conn, 'DE', 2017) + ".\n")
-    write_file("crime_information.txt", "The most amount of arrests for Delaware in 2018 (exluding the other category) come from " + most_arrests_for(cur, conn, 'DE', 2018) + ".\n")
+    write_file("crime_information.txt", "The most amount of arrests for Delaware in 2018 (exluding the other category) come from " + most_arrests_for(cur, conn, 'DE', 2018) + ".\n\n")
+
+    write_file("crime_information.txt", "The average age for dangerous cities is: " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n")
+    write_file("crime_information.txt", "The average age for safe cities is: " + average_age_in_safe_city(cur, conn) + " years old.\n\n")
+    write_file("crime_information.txt", "Count of how many of the Top 100 Safest Cities are in each State \n" + state_with_most_safe_cities(cur, conn)+ ".\n\n")
+    write_file("crime_information.txt", "Count of how many of the Top 100 Most Dangerous Cities are in each State \n" + state_with_most_dangerous_cities(cur, conn)+ ".\n\n")
 
     #calling of 3 OR 5 visualizations
     us_most_arrests_categories_viz(cur, conn, 2017, 2018)
