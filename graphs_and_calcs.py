@@ -1,6 +1,7 @@
 import sqlite3
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np #used for calculating trendlines
 import os
 
 def access_database(db_name):
@@ -385,12 +386,27 @@ def plot_median_ages_dangerous_cites(cur, conn):
         add_age = age.strip("(,)")
         age_list.append(float(add_age))
 
+    placement_list =[]
+    counter = 0
     for city_value in dangerous_city_names:
         city = str(city_value[0])
         state = str(city_value[1])
         add_city = city.strip("(,)")
         add_state = state.strip("(,)")
         location_list.append(add_city + ", " + add_state)
+        counter+=1
+        placement_list.append(counter)
+    
+    #values for making trendline
+    x = placement_list
+    y = age_list
+    #find number of points
+    n = np.size(x)
+    #find mean of x and y
+    m_x, m_y = np.mean(placement_list), np.mean(age_list)
+    rounded_age = round(m_y, 1)
+    average_label = "Average\nMedian\nAge\n"+ "(" + str(rounded_age) + ")"
+    
    
    #create scatter plot
     plt.figure()
@@ -398,12 +414,20 @@ def plot_median_ages_dangerous_cites(cur, conn):
     plt.subplots_adjust(bottom=0.20, right=0.85)
     plt.xticks(rotation=90, fontsize=6)
     ax.scatter(location_list, age_list, color='r')
-    plt.axhline(y=34.3, color='b', linestyle='-', label='Average\nMedian\nAge')
+    plt.axhline(y=rounded_age, color='b', linestyle='-', label=average_label)
     ax.set_xlabel('Dangerous Cities \n (in order of most dangerous to less)')
     ax.set_ylabel('Median Age')
     ax.set_title('Median Age for U.S. Citizens in Dangerous Cities \n with a Population over 65K')
-    #fig.savefig("Median_Age_in_Dangerous_Cities.jpg")
+    
+    #plot trendline
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    plt.plot(x,p(x),"g--", label='Trendline')
+    
+    plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
+
     plt.show()
+    
     
 def average_age_in_safe_city(cur, conn):
     #find average median age for safe cities
@@ -444,12 +468,26 @@ def plot_median_ages_safe_cites(cur, conn):
         add_age = age.strip("(,)")
         age_list.append(float(add_age))
 
+    placement_list =[]
+    counter = 0
     for city_value in safe_city_names:
         city = str(city_value[0])
         state = str(city_value[1])
         add_city = city.strip("(,)")
         add_state = state.strip("(,)")
         location_list.append(add_city + ", " + add_state)
+        counter+=1
+        placement_list.append(counter)
+    
+    #values for making trendline
+    x = placement_list
+    y = age_list
+    #find number of points
+    n = np.size(x)
+    #find mean of x and y
+    m_x, m_y = np.mean(placement_list), np.mean(age_list)
+    rounded_age = round(m_y, 1)
+    average_label = "Average\nMedian\nAge\n"+ "(" + str(rounded_age) + ")"
     
     #create scatter plot
     plt.figure()
@@ -457,13 +495,21 @@ def plot_median_ages_safe_cites(cur, conn):
     plt.subplots_adjust(bottom=0.20, right=0.85)
     plt.xticks(rotation=90, fontsize=6)
     ax.scatter(location_list, age_list, color='g')
-    plt.axhline(y=39.4, color='b', linestyle='-', label='Average\nMedian\nAge')
-    plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
+    plt.axhline(y=rounded_age, color='b', linestyle='-', label=average_label)
+    
     ax.set_xlabel('Safest Cities \n (in order of most safe to less)')
     ax.set_ylabel('Median Age')
     ax.set_title('Median Age for U.S. Citizens in Safest Cities \n with a Population over 65K')
-    #fig.savefig("Median_Age_in_Dangerous_Cities.jpg")
+    
+    #plot trendline
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    plt.plot(x,p(x),"r--", label='Trendline')
+    
+    plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
+
     plt.show()
+    
 
 def arrests_increase_or_decrease(cur, conn):
     if arrests_in_year(cur, conn, 2017) < arrests_in_year(cur, conn, 2018):
