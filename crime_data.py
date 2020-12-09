@@ -158,8 +158,7 @@ def create_safe_cities_table(cur, conn):
             state_id = cur.fetchone()[0]
             cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
         conn.commit()  
-    #elif row_count == 75:
-    else:
+    elif row_count == 75:
         for i in range(75, 100):
             state = stateList[i]
             cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
