@@ -99,7 +99,152 @@ def arrests_in_year(cur, conn, year):
     return total
 
 #for each state and year, what are they most arrested for (besides other category)? 
+def most_arrests_for_each_state(cur, conn, year):
+    cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year,))
+    all_state_abbrev = cur.fetchall()
+    list_of_states_abbrev = []
+    list_of_states_with_category_and_amount = []
+
+    for tup in all_state_abbrev:
+        list_of_states_abbrev.append(tup[0])
+
+    for state_abbrev in list_of_states_abbrev:
+        cur.execute('SELECT ag_assault, arson, burglary, disorderly, drug_abuse, drunkenness, dui, embezzlement, family_o, forgery, fraud, gambling, larceny, liquor, loitering, manslaughter, murder, mvt, prostitution, rape, robbery, sex_o, s_assault, stolen_p, suspicion, trafficking, vagrancy, vandalism, weapons FROM State_Crimes WHERE state_id = ? and year = ?', (state_abbrev, year))
+        tup_of_all_arrests_for_each_category = cur.fetchone()
+    
+        #does this count as hardcoding?
+        categories_list = ["ag_assault","arson","burglary","disorderly","drug_abuse","drunkenness", "dui", "embezzlement", "family_o", "forgery", "fraud", "gambling", "larceny", "liquor", "loitering", "manslaughter", "murder", "mvt", "prostitution", "rape", "robbery", "sex_o", "s_assault", "stolen_p", "suspicion", "trafficking", "vagrancy", "vandalism", "weapons"]
+        
+        maximum = 0
+        category = ""
+
+        for i in range(len(tup_of_all_arrests_for_each_category)):
+            if tup_of_all_arrests_for_each_category[i] > maximum:
+                maximum = tup_of_all_arrests_for_each_category[i]
+                category = categories_list[i] 
+
+        if category == "s_assault":
+            category = "Simple Assault"
+        elif category == "drug_abuse":
+            category = "Drug Abuse"
+        elif category == "dui":
+            category = category.upper()
+        else:
+            category = category.capitalize()
+
+        cur.execute('SELECT state_name FROM States JOIN State_Crimes on States.abbreviation = State_Crimes.state_id WHERE State_Crimes.state_id = ?', (state_abbrev,))
+        state_name = cur.fetchone()[0]
+
+        list_of_states_with_category_and_amount.append(("State: " + state_name, "Category: " + category, "Arrests: " + str(maximum)))
+
+    return str(list_of_states_with_category_and_amount)
+
 def most_arrests_for(cur, conn, state_abbrev, year):
+    cur.execute('SELECT ag_assault, arson, burglary, disorderly, drug_abuse, drunkenness, dui, embezzlement, family_o, forgery, fraud, gambling, larceny, liquor, loitering, manslaughter, murder, mvt, other, prostitution, rape, robbery, sex_o, s_assault, stolen_p, suspicion, trafficking, vagrancy, vandalism, weapons FROM State_Crimes WHERE state_id = ? and year = ?', (state_abbrev, year))
+    tup_of_all_arrests_for_each_category = cur.fetchone()
+    
+    #does this count as hardcoding?
+    categories_list = ["ag_assault","arson","burglary","disorderly","drug_abuse","drunkenness", "dui", "embezzlement", "family_o", "forgery", "fraud", "gambling", "larceny", "liquor", "loitering", "manslaughter", "murder", "mvt", "other", "prostitution", "rape", "robbery", "sex_o", "s_assault", "stolen_p", "suspicion", "trafficking", "vagrancy", "vandalism", "weapons"]
+    
+    maximum = 0
+    category = ""
+
+    for i in range(len(tup_of_all_arrests_for_each_category)):
+        if tup_of_all_arrests_for_each_category[i] > maximum:
+            maximum = tup_of_all_arrests_for_each_category[i]
+            category = categories_list[i] 
+
+    return category    
+
+#from each state, took the crime category that had the most arrests. saw how often each category appeared
+#to have the most arrests for the other states / counted the appearance of categories with most arrests
+#2017: 45 states have the category other as the most number of arrests, 3 states have drug abuse, 2 simple assault
+#2018: 45 states have the category other as the most number of arrests, 4 states have drug abuse, 1 simple assault
+def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
+    cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year_one,))
+    all_state_abbrev = cur.fetchall()
+    list_of_states_abbrev = []
+
+    list_of_most_arrest_categories = []
+    dict_of_category_and_count = {}
+
+    for tup in all_state_abbrev:
+        list_of_states_abbrev.append(tup[0])
+
+    for state_abbrev in list_of_states_abbrev:
+        crime_category = most_arrests_for(cur, conn, state_abbrev, year_one)
+        list_of_most_arrest_categories.append(crime_category)
+
+    for category in list_of_most_arrest_categories:
+        dict_of_category_and_count[category] = dict_of_category_and_count.get(category, 0) + 1
+
+    labels = []
+    sizes = []
+
+    for category in dict_of_category_and_count.keys():
+        if category == "s_assault":
+            category_name = "Simple Assault"
+        elif category == "drug_abuse":
+            category_name = "Drug Abuse"
+        elif category == "dui":
+            category_name = category.upper()
+        else:
+            category_name = category.capitalize()
+        labels.append(category_name)
+    for count in dict_of_category_and_count.values():
+        sizes.append(count)
+
+    colors = ['lightskyblue', 'lightcoral', 'yellowgreen', 'gold', 'pink', 'red', 'blue', 'green', 'magenta']
+
+    plt.figure()
+    plt.subplot(121)
+    plt.title("US Arrests Mainly For These Crime Categories \n (excludes the other category) in " + str(year_one))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors)
+    plt.axis('equal')
+
+    cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year_two,))
+    all_states_abbrev = cur.fetchall()
+    list_states_abbrev = []
+
+    list_most_arrest_categories = []
+    dict_category_and_count = {}
+
+    for tup in all_states_abbrev:
+        list_states_abbrev.append(tup[0])
+
+    for state_abbrev in list_of_states_abbrev:
+        crime_category_year_two = most_arrests_for(cur, conn, state_abbrev, year_two)
+        list_most_arrest_categories.append(crime_category_year_two)
+
+    for category in list_most_arrest_categories:
+        dict_category_and_count[category] = dict_category_and_count.get(category, 0) + 1
+
+    labels_two = []
+    sizes_two = []
+
+    for category in dict_category_and_count.keys():
+        if category == "s_assault":
+            category_name = "Simple Assault"
+        elif category == "drug_abuse":
+            category_name = "Drug Abuse"
+        elif category == "dui":
+            category_name = category.upper()
+        else:
+            category_name = category.capitalize()
+        labels_two.append(category_name)
+    for count in dict_category_and_count.values():
+        sizes_two.append(count)
+
+    plt.subplot(122)
+    plt.title("US Arrests Mainly For These Crime Categories \n (excludes the other category) in " + str(year_two))
+    plt.pie(sizes_two, labels=labels_two, autopct='%1.1f%%', colors=colors)
+    plt.axis('equal')
+    
+    plt.tight_layout(w_pad=-5)
+    plt.show()
+
+#without other
+def most_arrests_without_other(cur, conn, state_abbrev, year):
     cur.execute('SELECT ag_assault, arson, burglary, disorderly, drug_abuse, drunkenness, dui, embezzlement, family_o, forgery, fraud, gambling, larceny, liquor, loitering, manslaughter, murder, mvt, prostitution, rape, robbery, sex_o, s_assault, stolen_p, suspicion, trafficking, vagrancy, vandalism, weapons FROM State_Crimes WHERE state_id = ? and year = ?', (state_abbrev, year))
     tup_of_all_arrests_for_each_category = cur.fetchone()
     
@@ -116,9 +261,7 @@ def most_arrests_for(cur, conn, state_abbrev, year):
 
     return category
 
-#from each state, took the crime category that had the most arrests. saw how often each category appeared
-#to have the most arrests for the other states / counted the appearance of categories with most arrests
-def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
+def us_most_arrests_categories_viz_without_other(cur, conn, year_one, year_two):
     cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year_one,))
     all_state_abbrev = cur.fetchall()
     list_of_states_abbrev = []
@@ -130,7 +273,7 @@ def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
         list_of_states_abbrev.append(tup[0])
 
     for state_abbrev in list_of_states_abbrev:
-        crime_category = most_arrests_for(cur, conn, state_abbrev, year_one)
+        crime_category = most_arrests_without_other(cur, conn, state_abbrev, year_one)
         list_of_most_arrest_categories.append(crime_category)
 
     for category in list_of_most_arrest_categories:
@@ -171,7 +314,7 @@ def us_most_arrests_categories_viz(cur, conn, year_one, year_two):
         list_states_abbrev.append(tup[0])
 
     for state_abbrev in list_of_states_abbrev:
-        crime_category_year_two = most_arrests_for(cur, conn, state_abbrev, year_two)
+        crime_category_year_two = most_arrests_without_other(cur, conn, state_abbrev, year_two)
         list_most_arrest_categories.append(crime_category_year_two)
 
     for category in list_most_arrest_categories:
@@ -261,18 +404,20 @@ def main():
     else:
         write_file("crime_information.txt", "The total number of arrests decreased from 2017 to 2018.\n\n")
 
-    write_file("crime_information.txt", "The most amount of arrests for Michigan in 2017 (exluding the other category) come from " + most_arrests_for(cur, conn, 'MI', 2017) + ".\n")
-    write_file("crime_information.txt", "The most amount of arrests for Michigan in 2018 (exluding the other category) come from " + most_arrests_for(cur, conn, 'MI', 2018) + ".\n")
-    write_file("crime_information.txt", "The most amount of arrests for Delaware in 2017 (exluding the other category) come from " + most_arrests_for(cur, conn, 'DE', 2017) + ".\n")
-    write_file("crime_information.txt", "The most amount of arrests for Delaware in 2018 (exluding the other category) come from " + most_arrests_for(cur, conn, 'DE', 2018) + ".\n\n")
+    #write_file("crime_information.txt", "The most amount of arrests for Michigan in 2017 (exluding the other category) come from " + most_arrests_for_each_state(cur, conn, 'MI', 2017) + ".\n")
+    #write_file("crime_information.txt", "The most amount of arrests for Michigan in 2018 (exluding the other category) come from " + most_arrests_for_each_state(cur, conn, 'MI', 2018) + ".\n")
+    #write_file("crime_information.txt", "The most amount of arrests for Delaware in 2017 (exluding the other category) come from " + most_arrests_for_each_state(cur, conn, 'DE', 2017) + ".\n")
+    #write_file("crime_information.txt", "The most amount of arrests for Delaware in 2018 (exluding the other category) come from " + most_arrests_for_each_state(cur, conn, 'DE', 2018) + ".\n\n")
+    write_file("crime_information.txt", "Most Amount of Arrests Come From Which Category for Each State in 2017 (excluding the Other Category) \n" + most_arrests_for_each_state(cur, conn, 2017) + ".\n\n")
+    write_file("crime_information.txt", "Most Amount of Arrests Come From Which Category for Each State in 2018 (excluding the Other Category) \n" + most_arrests_for_each_state(cur, conn, 2018) + ".\n\n")
 
     write_file("crime_information.txt", "The average age for dangerous cities is: " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n")
     write_file("crime_information.txt", "The average age for safe cities is: " + average_age_in_safe_city(cur, conn) + " years old.\n\n")
-    write_file("crime_information.txt", "Count of how many of the Top 100 Safest Cities are in each State \n" + state_with_most_safe_cities(cur, conn)+ ".\n\n")
-    write_file("crime_information.txt", "Count of how many of the Top 100 Most Dangerous Cities are in each State \n" + state_with_most_dangerous_cities(cur, conn)+ ".\n\n")
+    write_file("crime_information.txt", "Count of How Many of the Top 100 Safest Cities are in Each State \n" + state_with_most_safe_cities(cur, conn)+ ".\n\n")
+    write_file("crime_information.txt", "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + state_with_most_dangerous_cities(cur, conn)+ ".\n\n")
 
     #calling of 3 OR 5 visualizations
     us_most_arrests_categories_viz(cur, conn, 2017, 2018)
-    #us_most_arrests_categories_viz(cur, conn, 2018)
+    us_most_arrests_categories_viz_without_other(cur, conn, 2017, 2018)
 
 main()
