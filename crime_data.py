@@ -33,7 +33,7 @@ def create_state_table(cur, conn):
             cur.execute("INSERT INTO States (id,abbreviation,state_name) VALUES (?,?,?)",(i,state_abr[i],states[i]))
         conn.commit() 
 
-def create_dangerous_cities_table(cur, conn):
+def create_dangerous_cities_table(cur,conn,start,end):
     '''
     This function uses a website to webscrape the names of the top 100 most dangerous US cities.
     After seperating the city name from the state, it assigns the city to an id, and inserts the
@@ -42,15 +42,15 @@ def create_dangerous_cities_table(cur, conn):
     '''
     city = str()
     city_list = []
-    city_list_URL = "https://www.neighborhoodscout.com/blog/top100dangerous"
+    city_list_URL = "https://www.safehome.org/safest-cities/"
     page = requests.get(city_list_URL) 
     soup = BeautifulSoup(page.content, 'html.parser')
     tags = soup.find_all("h3")
     for location in tags:
-        title = location.find("a")
-        city_state = title.text
+        city_state = location.text
         city_list.append(city_state)
-
+        if len(city_list) >= 100:
+            break
     cityList = []
     stateList = []
     #separate city from state
@@ -61,50 +61,14 @@ def create_dangerous_cities_table(cur, conn):
         state = separated_location[1]
         stateList.append(state)
 
-    cur.execute("CREATE TABLE IF NOT EXISTS Dangerous_Cities (id INTEGER PRIMARY KEY, city TEXT, state_id INTEGER)")
-    #uncomment this if you want to collect all 100 rows at once
-    '''
-    for i in range(len(stateList)):
-        cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-    conn.commit() 
-    '''
-    # want the loop to run 25 times
-    cur.execute('SELECT COUNT(*) FROM Dangerous_Cities')
-    row_count = cur.fetchone()[0]
-    if row_count == 0:
-        for i in range(25):
-            #insert state_id as foreign key
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
-        conn.commit() 
-    elif row_count == 25:
-        for i in range(25, 50):
-            #insert state_id as foreign key
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
-        conn.commit()  
-    elif row_count == 50:
-        for i in range(50, 75):
-            #insert state_id as foreign key
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
-        conn.commit()  
-    elif row_count == 75:
-        for i in range(75, 100):
-            #insert state_id as foreign key
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))
-        conn.commit()  
+    for i in range(start, end):
+        state = stateList[i]
+        cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+        state_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
+    conn.commit()
 
-def create_safe_cities_table(cur, conn):
+def create_safe_cities_table(cur, conn, start, end):
     '''
     This function uses a website to webscrape the names of the top 100 most safe 
     US cities by selecting 25 at a time, and adding them to the database.
@@ -134,59 +98,58 @@ def create_safe_cities_table(cur, conn):
         state = separated_location[1]
         stateList.append(state)
 
-    cur.execute("CREATE TABLE IF NOT EXISTS Safe_Cities (id INTEGER PRIMARY KEY, city TEXT, state_id INTEGER)")
-    #uncomment this if you want to collect all 100 rows at once
-    '''
-    for i in range(len(stateList)):
-        cur.execute("INSERT INTO Dangerous_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],stateList[i]))
-    conn.commit() 
-    '''
-    # want the loop to run 25 times
-    cur.execute('SELECT COUNT(*) FROM Safe_Cities')
-    row_count = cur.fetchone()[0]
-    if row_count == 0:
-        print("Collecting Web Data...(1/4)")
-        for i in range(25):
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
-        conn.commit()
-    elif row_count == 25:
-        print("Collecting Web Data...(2/4)")
-        for i in range(25, 50):
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
-        conn.commit()
-    elif row_count == 50:
-        print("Collecting Web Data...(3/4)")
-        for i in range(50, 75):
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
-        conn.commit()  
-    elif row_count == 75:
-        print("Collecting Web Data...(4/4)")
-        for i in range(75, 100):
-            state = stateList[i]
-            cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
-            state_id = cur.fetchone()[0]
-            cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
-        conn.commit()  
-    
-    print("Finished")
+    for i in range(start, end):
+        state = stateList[i]
+        cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
+        state_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
+    conn.commit()
 
 def main():
-    # SETUP DATABASE AND TABLE
+    #setup database
     cur, conn = create_database('crime.db')
+    #create State table if not exists
     create_state_table(cur, conn)
 
-    create_dangerous_cities_table(cur, conn)
+    #create Safe_Cities table if not exists
+    cur.execute("CREATE TABLE IF NOT EXISTS Safe_Cities (id INTEGER PRIMARY KEY, city TEXT, state_id INTEGER)")
+    #create Dangerous_Cities table if not exists
+    cur.execute("CREATE TABLE IF NOT EXISTS Dangerous_Cities (id INTEGER PRIMARY KEY, city TEXT, state_id INTEGER)")
     
-    create_safe_cities_table(cur, conn)
+    #limiting amount of data collected to 25 rows each time file is ran
+    cur.execute('SELECT COUNT(*) FROM Safe_Cities')
+    safe_row_count = cur.fetchone()[0]
+
+    cur.execute('SELECT COUNT(*) FROM Dangerous_Cities')
+    danger_row_count = cur.fetchone()[0]
+    
+    if safe_row_count == 0 and danger_row_count == 0:
+        print("Collecting Web Data...(1/4)")
+        create_safe_cities_table(cur,conn,0,25)
+        create_dangerous_cities_table(cur,conn,0,25)
+        print("Finished")
+
+    elif safe_row_count == 25 and danger_row_count == 25:
+        print("Collecting Web Data...(2/4)")
+        create_safe_cities_table(cur,conn,25,50)
+        create_dangerous_cities_table(cur,conn,25,50)
+        print("Finished")
+
+    elif safe_row_count == 50 and danger_row_count == 50:
+        print("Collecting Web Data...(3/4)")
+        create_safe_cities_table(cur,conn,50,75)
+        create_dangerous_cities_table(cur,conn,50,75)
+        print("Finished")
+
+    elif safe_row_count == 75 and danger_row_count == 75:
+        print("Collecting Web Data...(4/4)")
+        create_safe_cities_table(cur,conn,75,100)
+        create_dangerous_cities_table(cur,conn,75,100)
+        print("Finished")
+
+    elif safe_row_count == 100 and danger_row_count == 100:
+        print("All 100 rows of Web Data have been inserted into the Safe_Cities and Dangerous_Cities tables in the database.")
+
     
 if __name__ == "__main__":
     main()
