@@ -90,23 +90,23 @@ def main():
     cur.execute('SELECT COUNT(*) FROM State_Crimes')
     row_count = cur.fetchone()[0]
     if row_count == 0:
-        print("Collecting Crime Count Data... (1/4)")
+        print("Collecting Crime Count Data...(1/4)")
         create_state_crime_counts_table(cur,conn,0,26,2017)
         print("Finshed")
     elif row_count == 25:
-        print("Collecting Crime Count Data... (2/4)")
+        print("Collecting Crime Count Data...(2/4)")
         create_state_crime_counts_table(cur,conn,26,51,2017)
         print("Finshed")
     elif row_count == 50:
-        print("Collecting Crime Count Data... (3/4)")
+        print("Collecting Crime Count Data...(3/4)")
         create_state_crime_counts_table(cur,conn,0,26,2018)
         print("Finshed")
     elif row_count == 75:
-        print("Collecting Crime Count Data... (4/4)")
+        print("Collecting Crime Count Data...(4/4)")
         create_state_crime_counts_table(cur,conn,26,51,2018)
-        print("Finshed")
+        print("States_Crimes table is Completed.")
     elif row_count == 100:
-        print("All 100 rows of Crime Count Data have been inserted into the database.")
+        print("All 100 rows of Crime Count Data have been inserted into the State_Crimes table in the database.")
 
 if __name__ == "__main__":
     main()
