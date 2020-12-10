@@ -8,8 +8,8 @@ API_key = "43vyNBaRamuvatb61ifsdblzCXp6qmkYz2ZJs9Hs"
 
 def create_database(db_file):
     '''
-    This function creates the database named crime_data.db,  
-    which will be used to store all the data collected within our project. 
+    This function takes in a db_file and creates the database named crime.db,  
+    which will be used to store all the data. 
     '''
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_file)
@@ -18,11 +18,14 @@ def create_database(db_file):
 
 def create_state_crime_counts_table(cur,conn,start,end,start_year):
     '''
-    This function uses an API to get crime counts sorted by crime type, state, and year.
-    We're looking at years 2017 and 2018 for data. After running 4 times, all 100 rows of 
-    data will be entered into the database under the States_Crime table. This datbase excludes 
-    DC since its results were significantly lower in comparison. 
-    Source:https://crime-data-explorer.fr.cloud.gov/api
+    This function creates the States_Crimes table and adds it to the database. 
+    It uses an API to get crime counts sorted by crime type, state, and year.
+    It looks at years 2017 and 2018 for the data. After calling it 4 times, all 100 rows of the
+    data will be entered into the database under the States_Crime table. This database excludes 
+    DC since its results were significantly lower in comparison. This function has start and 
+    end parameters for which rows in the database the data should be added, and it also takes 
+    into account the year of the data to retrieve (in this case, 2017 or 2018).
+    Source: https://crime-data-explorer.fr.cloud.gov/api
     '''
     end_year = start_year + 1
     for i in range(start,end):
@@ -82,6 +85,11 @@ def create_state_crime_counts_table(cur,conn,start,end,start_year):
     conn.commit()
 
 def main():
+    '''
+    This function sets up the database and creates the entire State_Crimes table
+    using create_database(db_file) and create_state_crime_counts_table(cur, conn, start, end, start_year),
+    while limiting stored data to at most 25 rows at a time.
+    '''
     # SETUP DATABASE AND TABLE
     cur, conn = create_database('crime.db')
     #create state crimes table to add this data, uses id keys from Dangerous_Cities
