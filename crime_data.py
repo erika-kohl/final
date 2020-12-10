@@ -8,7 +8,7 @@ import regex as re
 
 def create_database(db_file):
     '''
-    This function creates the database which will be used to store all data.
+    This function takes in a db file and creates the database crime.db which will be used to store all data.
     '''
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_file)
@@ -17,10 +17,13 @@ def create_database(db_file):
 
 def create_state_table(cur,conn,start,end):
     '''
-    This function creates the States lookup table and adds it to the database. 
-    It uses Beautifulsoup to find the state names, and regex to get the abbrevaition.
+    This function creates the States table and adds it to the database. The States 
+    table is created by web scraping from the top 100 safest cities site.
+    It uses BeautifulSoup to find the state names and regex to get the abbreviations.
     It assigns the state to a unique primary key id, inserts the abbreviation for 
-    each state, and inserts the full name of the state."
+    each state, and inserts the full name of the state. It has start and end parameters 
+    for which rows in the database the data should be added.
+    Source: https://www.safehome.org/safest-cities/
     '''
     state = str()
     states = []
@@ -58,9 +61,11 @@ def create_state_table(cur,conn,start,end):
 
 def create_dangerous_cities_table(cur,conn,start,end):
     '''
-    This function uses a website to webscrape the names of the top 100 most dangerous US cities.
-    After seperating the city name from the state, it assigns the city to an id, and inserts the
-    state_id as a foreign key. 
+    This function creates the Dangerous_Cities table and adds it to the database.
+    It uses a website to web scrape the names of the top 100 most dangerous US cities.
+    After seperating the city name from the state, it assigns the city to an id and inserts the
+    state_id as a foreign key. It has start and end parameters for which rows in the database 
+    the data should be added.
     Source: https://www.neighborhoodscout.com/blog/top100dangerous
     '''
     city = str()
@@ -94,10 +99,11 @@ def create_dangerous_cities_table(cur,conn,start,end):
 
 def create_safe_cities_table(cur, conn, start, end):
     '''
-    This function uses a website to webscrape the names of the top 100 most safe 
-    US cities by selecting 25 at a time, and adding them to the database.
-    After separating the city name from the state, it assigns the city name 
-    an id and inserts the state_id as a foreign key.
+    This function creates the Safe_Cities table and adds it to the database.
+    This function uses a website to web scrape the names of the top 100 most safe 
+    US cities and adds them to the database. After separating the city name from the state, 
+    it assigns the city name an id and inserts the state_id as a foreign key. It has start and 
+    end parameters for which rows in the database the data should be added.
     Source: https://www.safehome.org/safest-cities/
     '''
     city = str()
@@ -131,6 +137,12 @@ def create_safe_cities_table(cur, conn, start, end):
     conn.commit()
 
 def main():
+    '''
+    This function sets up the database and creates the entire States, Safe_Cities, and Dangerous_Cities 
+    tables using create_database(db_file), create_state_table(cur, conn, start, end), 
+    create_dangerous_cities_table(cur, conn, start, end), and create_safe_cities_table(cur, conn, start, end),
+    while limiting stored data to at most 25 rows at a time.
+    '''
     #setup database
     cur, conn = create_database('crime.db')
     
