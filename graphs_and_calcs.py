@@ -5,22 +5,31 @@ import numpy as np #used for calculating trendlines
 import os
 
 def access_database(db_name):
+    '''
+    This function takes in a db_file and creates the database named crime.db,  
+    which will be used to store all the data. This function also allows
+    us to access the data.
+    '''
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path + '/' + db_name)
     cur = conn.cursor()
     return cur, conn
 
 def write_file(filename, information):
-    """
+    '''
     This function uses the crime data information and
     writes the information in a text file called crime_information.txt.
-    """
+    '''
 
     with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), filename), "w") as out_file:
         out_file.write(information)
 
 #using crime_data.py and table Dangerous_Cities
 def state_with_most_dangerous_cities(cur, conn):
+    '''
+    This function counts the number of times a dangerous city in the Dangerous_Cities table is located in a state.
+    It returns a list of tuples ordered from the state with the most cities to least with at least 1 city in them. 
+    '''
     cur.execute('SELECT state_id FROM Dangerous_Cities')
     dangerous_states = cur.fetchall()
     dangerous_states_ids = []
@@ -52,6 +61,11 @@ def state_with_most_dangerous_cities(cur, conn):
 
 #using crime_data.py and table Safe_Cities
 def state_with_most_safe_cities(cur, conn):
+    '''
+    This function counts the number of times a safe city in the Safe_Cities table is located in a state.
+    It returns a list fo tuples ordered from the state with the most cities to least, with at least 1 city in them. 
+    '''
+
     cur.execute('SELECT state_id FROM Safe_Cities')
     safe_states = cur.fetchall()
     safe_states_ids = []
@@ -81,6 +95,13 @@ def state_with_most_safe_cities(cur, conn):
     return ranked_safe_states
 
 def state_city_counts_bar_viz(cur, conn, tlsafe, tldang):
+    '''
+    This function creates a side by side bar graph comparing the counts of top 100 safe cities and counts of
+    top 100 dangerous cities in each state. It takes in a list of tuples where state names are paired with
+    their count of safe cities- which is output by the "state_with_most_safe_cities(cur, conn)" function. 
+    It also takes in a tuple list of dangerous cities paired with their top crime category- which is output 
+    by the "state_with_most_dangerous_cities(cur, conn)" function. It then plots the bar graph with this data.
+    '''
 
     #make new ordered tlsafe and tldang with states having their short codes rather than full names in the tuples
     otlsafe = sorted(tlsafe)
@@ -176,6 +197,10 @@ def state_city_counts_bar_viz(cur, conn, tlsafe, tldang):
 #using crime_counts.py and table State_Crimes
 #total number of arrests in 2017 or 2018 for all states
 def arrests_in_year(cur, conn, year):
+    '''
+    This function takes in a year and uses the State_Crimes table to calculate 
+    the total number of arrests for that year (2017 or 2018) for all states.
+    '''
     total = 0
     list_of_total_from_all_states = []
 
@@ -190,8 +215,25 @@ def arrests_in_year(cur, conn, year):
 
     return total
 
+def arrests_increase_or_decrease(cur, conn, year_one, year_two):
+    '''
+    This function takes in two years and compares whether the total number of arrests have increased
+    or decreased from one year to the other by using arrests_in_year(cur, conn, year).
+    '''
+    if arrests_in_year(cur, conn, year_one) < arrests_in_year(cur, conn, year_two):
+        return "The total number of arrests increased from " + str(year_one) + " to " + str(year_two) + ".\n\n"
+    else:
+        return "The total number of arrests decreased from " + str(year_one) + " to " + str(year_two) + ".\n\n"
+
 #for each state and year, what are they most arrested for (besides other category)? 
 def most_arrests_for_each_state(cur, conn, year):
+    '''
+    This function loops through all 50 states for a given year (2017 or 2018) and loops through the 
+    amount of arrests for each crime category (except the other category) for each state to see which 
+    crime category has the most amount of arrests. It returns a list of 50 tuples for the 50 states, 
+    and each tuple contains the state, the crime category with the most arrests, and the amount of 
+    arrests for that crime category. 
+    '''
     cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year,))
     all_state_abbrev = cur.fetchall()
     list_of_states_abbrev = []
@@ -231,6 +273,10 @@ def most_arrests_for_each_state(cur, conn, year):
     return list_of_states_with_category_and_amount
 
 def most_arrests_for(cur, conn, state_abbrev, year):
+    '''
+    This function takes in a state abbreviation and year and returns the crime category with the most 
+    amount of arrests. This function includes the "other" category.
+    '''   
     cur.execute('SELECT ag_assault, arson, burglary, disorderly, drug_abuse, drunkenness, dui, embezzlement, family_o, forgery, fraud, gambling, larceny, liquor, loitering, manslaughter, murder, mvt, other, prostitution, rape, robbery, sex_o, s_assault, stolen_p, suspicion, trafficking, vagrancy, vandalism, weapons FROM State_Crimes WHERE state_id = ? and year = ?', (state_abbrev, year))
     tup_of_all_arrests_for_each_category = cur.fetchone()
     
@@ -251,6 +297,12 @@ def most_arrests_for(cur, conn, state_abbrev, year):
 #2017: 45 states have the category other as the most number of arrests, 3 states have drug abuse, 2 simple assault
 #2018: 45 states have the category other as the most number of arrests, 4 states have drug abuse, 1 simple assault
 def us_most_arrests_categories_pie_viz(cur, conn, year_one, year_two):
+    '''
+    This function allows for a side by side comparison (2 pie charts) of how the percentage of US 
+    states that have the same top crime categories changes from one year (year_one) to the other 
+    (year_two) by using most_arrests_for(cur, conn, state_abbrev, year) which includes the 
+    "other" category.
+    '''
     cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year_one,))
     all_state_abbrev = cur.fetchall()
     list_of_states_abbrev = []
@@ -335,6 +387,10 @@ def us_most_arrests_categories_pie_viz(cur, conn, year_one, year_two):
 
 #without other
 def most_arrests_without_other(cur, conn, state_abbrev, year):
+    '''
+    This function takes in a state abbreviation and year and returns the crime category with the most 
+    amount of arrests. This function doesn't include the "other" category.
+    '''   
     cur.execute('SELECT ag_assault, arson, burglary, disorderly, drug_abuse, drunkenness, dui, embezzlement, family_o, forgery, fraud, gambling, larceny, liquor, loitering, manslaughter, murder, mvt, prostitution, rape, robbery, sex_o, s_assault, stolen_p, suspicion, trafficking, vagrancy, vandalism, weapons FROM State_Crimes WHERE state_id = ? and year = ?', (state_abbrev, year))
     tup_of_all_arrests_for_each_category = cur.fetchone()
     
@@ -351,6 +407,12 @@ def most_arrests_without_other(cur, conn, state_abbrev, year):
     return category
 
 def us_most_arrests_categories_pie_viz_without_other(cur, conn, year_one, year_two):
+    '''
+    This function allows for a side by side comparison (2 pie charts) of how the percentage of US 
+    states that have the same top crime categories changes from one year (year_one) to the other 
+    (year_two) by using most_arrests_without_other(cur, conn, state_abbrev, year) which doesn't
+    include the "other" category.
+    '''
     cur.execute('SELECT state_id FROM State_Crimes WHERE year = ?', (year_one,))
     all_state_abbrev = cur.fetchall()
     list_of_states_abbrev = []
@@ -436,6 +498,10 @@ def us_most_arrests_categories_pie_viz_without_other(cur, conn, year_one, year_t
 #using demo_api.py and table City_Demos
 #average median age for dangerous cities vs safe cities
 def average_age_in_dangerous_city(cur, conn):
+    '''
+    This function calculates the average median age in dangerous cities with a population size over 65k.
+    It returns the average age rounded to one decimal place.
+    '''
     #find average median age for dangerous cities
     cur.execute('SELECT med_age FROM City_Demos WHERE type = "D"')
     dangerous_city_ages = cur.fetchall()
@@ -459,7 +525,11 @@ def average_age_in_dangerous_city(cur, conn):
 
 def plot_median_ages_dangerous_cites(cur, conn):
     '''
-    This function creates a scatter plot of the available median ages of cities over 65k population size and listed as dangerous.
+    This function creates a scatter plot of the available median ages of cities over 65k population size 
+    and listed as dangerous. It then graphs the point by each dangerous city on the x axis, and the median age 
+    on the y-axis. Next,the average median age is calculated and a solid, blue horizontal line is 
+    added to the graph. Lastly, it calculates the trendline and adds it to the graph to show whether 
+    median increases as a city gets less dangerous or decreases, and is displayed as a dashed green line.
     '''
     cur.execute('SELECT med_age FROM City_Demos WHERE type = "D"')
     dangerous_city_ages = cur.fetchall()
@@ -496,7 +566,7 @@ def plot_median_ages_dangerous_cites(cur, conn):
     
    
    #create scatter plot
-    plt.figure()
+    #plt.figure()
     fig,ax = plt.subplots()
     plt.subplots_adjust(bottom=0.20, right=0.85)
     plt.xticks(rotation=90, fontsize=6)
@@ -517,6 +587,10 @@ def plot_median_ages_dangerous_cites(cur, conn):
     
     
 def average_age_in_safe_city(cur, conn):
+    '''
+    This function calculates the average median age in safe cities with a population size over 65k.
+    It returns the average age rounded to one decimal place.
+    '''
     #find average median age for safe cities
     cur.execute('SELECT med_age FROM City_Demos WHERE type = "S"')
     safe_city_ages = cur.fetchall()
@@ -541,7 +615,11 @@ def average_age_in_safe_city(cur, conn):
 
 def plot_median_ages_safe_cites(cur, conn):
     '''
-    This function creates a scatter plot of the available median ages of cities over 65k population size and listed as safe.
+    This function creates a scatter plot of the available median ages of cities over 65k population size
+    and listed as safe It then graphs the point by each safe city on the x axis, and the median age on the y-axis. 
+    Next,the average median age is calculated and a solid, blue horizontal line is added to the graph. 
+    Lastly, it calculates the trendline and adds it to the graph to show whether median increases 
+    as a city gets less safe or decreases, and is displayed as a dashed red line.
     '''
     cur.execute('SELECT med_age FROM City_Demos WHERE type = "S"')
     safe_city_ages = cur.fetchall()
@@ -577,8 +655,8 @@ def plot_median_ages_safe_cites(cur, conn):
     average_label = "Average\nMedian\nAge\n"+ "(" + str(rounded_age) + ")"
     
     #create scatter plot
-    plt.figure()
-    fig,ax = plt.subplots()
+    #plt.figure()
+    fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=0.20, right=0.85)
     plt.xticks(rotation=90, fontsize=6)
     ax.scatter(location_list, age_list, color='g')
@@ -596,19 +674,14 @@ def plot_median_ages_safe_cites(cur, conn):
     plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
 
     plt.show()
-    
-
-def arrests_increase_or_decrease(cur, conn):
-    if arrests_in_year(cur, conn, 2017) < arrests_in_year(cur, conn, 2018):
-        return "The total number of arrests increased from 2017 to 2018.\n\n"
-    else:
-        return "The total number of arrests decreased from 2017 to 2018.\n\n"
-
 
 def setup_state_freq_bar_viz(cur, conn, year):
-    ''' looks at the top arrest category for each state (excluding other category) and plots a
-        bar graph with top popular arrest categories on the x axis, and number of states with that
-        category as their #1 arrest type on the y axis.
+    ''' 
+    This function takes in the year as a parameter to specify which year of crime categories it's looking at. 
+    It returns a tuple with the first item being x values in a list and 2nd item being the y values in a list, 
+    and it is to be plotted by top_arrest_categories_bar_viz(cur, conn, tl2017, tl2018, title, y_axis_title). 
+    The x values are the top crime categories, and the y values are the state frequency counts for each 
+    top crime category.
     '''
     #a list of tuples in the format [(State: [state], Category: [cat], Arrests: [value]),]
     state_arrests_tuplist = most_arrests_for_each_state(cur,conn,year)
@@ -633,9 +706,11 @@ def setup_state_freq_bar_viz(cur, conn, year):
     return(x_values_list, y_values_list)
    
 def setup_arrest_count_bar_viz(cur, conn, year):
-    ''' looks at the top arrest category for each state (excluding other category) and plots a
-        bar graph with top popular arrest categories on the x axis, and number of arrests from that
-        category totaled from each state on the y axis.
+    ''' 
+    This function takes in the year as a parameter to specify which year of crime categories it's looking at. 
+    It returns a tuple with the first item being x values in a list and 2nd item being the y values in a list,
+    and it is to be plotted by top_arrest_categories_bar_viz(cur, conn, tl2017, tl2018, title, y_axis_title). 
+    The x values are the top crime categories, and the y values are the arrest counts for each top crime category.
     '''
     #a list of tuples in the format [(State: [state], Category: [cat], Arrests: [value]),]
     state_arrests_tuplist = most_arrests_for_each_state(cur,conn,year)
@@ -657,6 +732,14 @@ def setup_arrest_count_bar_viz(cur, conn, year):
     return(x_values_list, y_values_list)
 
 def top_arrest_categories_bar_viz(cur, conn, tl2017, tl2018, title, y_axis_title):
+    '''
+    It takes in 2 tuples made up of x and y value lists from 2017 and 2018 from either of the above setup functions.
+    It takes in a title value and a y_axis_title value that will change depending on whether it is using the setup_
+    state_freq_bar_viz function or if it is using the setup_arrest_count_bar_viz function. It plots a bar graph with
+    top popular arrest categories on the x axis (excluding other), and either number of states with that category
+    as their #1 arrest type on the y axis OR it prints the total arrest counts for each top crime category from the
+    states where that category was their top crime.
+    '''
     #get x and y values to plot for both years 2017 and 2018
     x_values_2017 = tl2017[0]
     y_values_2017 = tl2017[1]
@@ -691,31 +774,39 @@ def top_arrest_categories_bar_viz(cur, conn, tl2017, tl2018, title, y_axis_title
     plt.tight_layout()
     plt.show()
 
-
-
-
-
 def main():
+    '''
+    This function sets up the database to access the data using create_database(db_file).
+    It then writes the calculations made to crime_information.txt by using write_file(filename, information).
+    Then, it calls the 7 visualizations (state_city_counts_bar_viz, us_most_arrests_categories_pie_viz, 
+    us_most_arrests_categories_pie_viz_without_other, top_arrest_categories_bar_viz for state frequencies of top
+    crime categories, top_arrest_categories_bar_viz for total crime counts of each state's top crime categories, 
+    plot_median_ages_dangerous_cites, plot_median_ages_safe_cites).
+    '''
     cur, conn = access_database('crime.db')
 
-    information = "The total number of arrests in 2017 in the United States is " + str(arrests_in_year(cur, conn, 2017)) + ".\nThe total number of arrests in 2018 in the United States is " + str(arrests_in_year(cur, conn, 2018)) + ".\n" + arrests_increase_or_decrease(cur, conn) + "Most Amount of Arrests Come From Which Category for Each State in 2017 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2017)) + "\n\n" + "Most Amount of Arrests Come From Which Category for Each State in 2018 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2018)) + "\n\n" + "The average median age for people in dangerous cities is " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n" + "The average median age for people in safe cities is " + average_age_in_safe_city(cur, conn) + " years old.\n\n" + "Count of How Many of the Top 100 Safest Cities are in Each State \n" + str(state_with_most_safe_cities(cur, conn))+ "\n\n" + "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + str(state_with_most_dangerous_cities(cur, conn))+ "\n\n"
+    information = "The total number of arrests in 2017 in the United States is " + str(arrests_in_year(cur, conn, 2017)) + ".\nThe total number of arrests in 2018 in the United States is " + str(arrests_in_year(cur, conn, 2018)) + ".\n" + arrests_increase_or_decrease(cur, conn, 2017, 2018) + "Most Amount of Arrests Come From Which Category for Each State in 2017 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2017)) + "\n\n" + "Most Amount of Arrests Come From Which Category for Each State in 2018 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2018)) + "\n\n" + "The average median age for people in dangerous cities is " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n" + "The average median age for people in safe cities is " + average_age_in_safe_city(cur, conn) + " years old.\n\n" + "Count of How Many of the Top 100 Safest Cities are in Each State \n" + str(state_with_most_safe_cities(cur, conn))+ "\n\n" + "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + str(state_with_most_dangerous_cities(cur, conn))+ "\n\n"
 
     write_file("crime_information.txt", information)
    
     #calling of 7 visualizations
     #plots the amount of dangerous cities and safe cities by state in a bar chart
     state_city_counts_bar_viz(cur, conn, state_with_most_safe_cities(cur,conn), state_with_most_dangerous_cities(cur,conn))
+    
+    #pie charts of same data
+    us_most_arrests_categories_pie_viz(cur, conn, 2017, 2018)
+    us_most_arrests_categories_pie_viz_without_other(cur, conn, 2017, 2018)
+
     #plots state frequencies of top crime categories
     tuplist_state_freq_2017 = setup_state_freq_bar_viz(cur,conn,2017)
     tuplist_state_freq_2018 = setup_state_freq_bar_viz(cur,conn,2018)
     top_arrest_categories_bar_viz(cur,conn, tuplist_state_freq_2017, tuplist_state_freq_2018, 'State Frequencies of Top Crime Categories', 'State Frequencies')
+    
     #plots total crime counts of each state's top crime categories
     tuplist_arrest_count_2017 = setup_arrest_count_bar_viz(cur, conn, 2017)
     tuplist_arrest_count_2018 = setup_arrest_count_bar_viz(cur, conn, 2018)
     top_arrest_categories_bar_viz(cur,conn, tuplist_arrest_count_2017, tuplist_arrest_count_2018, "Arrest Counts of States' Top Crime Categories", "Arrest Counts")
-    #pie charts of same data
-    us_most_arrests_categories_pie_viz(cur, conn, 2017, 2018)
-    us_most_arrests_categories_pie_viz_without_other(cur, conn, 2017, 2018)
+
     #the two scatterplots
     plot_median_ages_dangerous_cites(cur, conn)
     plot_median_ages_safe_cites(cur, conn)
