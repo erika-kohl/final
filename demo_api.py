@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 
 def create_database(db_file):
     '''
-    This function creates the database which will be used to store all the data. 
+    This function takes in a db_file and creates the database named crime.db,  
+    which will be used to store all the data. 
     After running all 3 files, there should be a total of 5 tables.
     '''
     path = os.path.dirname(os.path.abspath(__file__))
@@ -20,8 +21,17 @@ def create_database(db_file):
 
 def create_city_demos_table(cur,conn,start,end,type):
     '''
-    This function uses an API to get the demographics of the top 100 most dangerous US cities + top 100 safest US cities we found with web scraping. 
-    Source:https://public.opendatasoft.com/explore/dataset/us-cities-demographics/table/?sort=-count&dataChart=eyJxdWVyaWVzIjpbeyJjb25maWciOnsiZGF0YXNldCI6InVzLWNpdGllcy1kZW1vZ3JhcGhpY3MiLCJvcHRpb25zIjp7fX0sImNoYXJ0cyI6W3siYWxpZ25Nb250aCI6dHJ1ZSwidHlwZSI6ImNvbHVtbiIsImZ1bmMiOiJBVkciLCJ5QXhpcyI6ImNvdW50Iiwic2NpZW50aWZpY0Rpc3BsYXkiOnRydWUsImNvbG9yIjoiI0ZGNTE1QSJ9XSwieEF4aXMiOiJjaXR5IiwibWF4cG9pbnRzIjo1MCwic29ydCI6IiJ9XSwidGltZXNjYWxlIjoiIiwiZGlzcGxheUxlZ2VuZCI6dHJ1ZSwiYWxpZ25Nb250aCI6dHJ1ZX0%3D
+    This function creates the City_Demos table and adds it to the database.
+    It uses an API to get the demographics of any available cities from the 
+    top 100 most dangerous US cities and the top 100 safest US cities (that were found from web scraping). 
+    This function has start and end parameters for which rows in the Dangerous_Cities and Safe_Cities tables
+    it should be looking through, and it also has the type parameter to know whether to look at the
+    Dangerous_Cities table or the Safe_Cities table.
+    Source: https://public.opendatasoft.com/explore/dataset/us-cities-demographics/table/?sort=-count
+    &dataChart=eyJxdWVyaWVzIjpbeyJjb25maWciOnsiZGF0YXNldCI6InVzLWNpdGllcy1kZW1vZ3JhcGhpY3MiLCJvcH
+    Rpb25zIjp7fX0sImNoYXJ0cyI6W3siYWxpZ25Nb250aCI6dHJ1ZSwidHlwZSI6ImNvbHVtbiIsImZ1bmMiOiJBVkciLCJ5QXhpcyI6ImN
+    vdW50Iiwic2NpZW50aWZpY0Rpc3BsYXkiOnRydWUsImNvbG9yIjoiI0ZGNTE1QSJ9XSwieEF4aXMiOiJjaXR5IiwibWF4cG9pbnRzIjo1MCwic29yd
+    CI6IiJ9XSwidGltZXNjYWxlIjoiIiwiZGlzcGxheUxlZ2VuZCI6dHJ1ZSwiYWxpZ25Nb250aCI6dHJ1ZX0%3D
     '''
     #loop through dangerous cities table joined with state table to grab city and longform state to use in API request
     if type == "Dangerous":   
@@ -130,6 +140,11 @@ def create_city_demos_table(cur,conn,start,end,type):
             conn.commit()
 
 def main():
+    '''
+    This function sets up the database and creates the entire City_Demos table
+    using create_database(db_file) and create_city_demos_table(cur, conn, start, end, type),
+    while limiting stored data to at most 25 rows at a time.
+    '''
     #setup database
     cur, conn = create_database('crime.db')
 
