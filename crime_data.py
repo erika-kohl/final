@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 def create_database(db_file):
     '''
-    This function creates the database which will be used to store all the data
+    This function creates the database which will be used to store all data.
     '''
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_file)
@@ -16,7 +16,9 @@ def create_database(db_file):
 
 def create_state_table(cur, conn):
     '''
-    This function creates the States lookup table and adds it to the database.It sets the abbreviation for each state as the primary key since each is unique."
+    This function creates the States lookup table and adds it to the database.
+    It assigns the state to a unique primary key id, inserts the abbreviation for 
+    each state, and inserts the full name of the state."
     '''
     
     states = ["Alabama","Alaska", "Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Colombia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"]
@@ -33,7 +35,9 @@ def create_state_table(cur, conn):
 
 def create_dangerous_cities_table(cur, conn):
     '''
-    This function uses a website to webscrape the names of the top 100 most dangerous US cities. 
+    This function uses a website to webscrape the names of the top 100 most dangerous US cities.
+    After seperating the city name from the state, it assigns the city to an id, and inserts the
+    state_id as a foreign key. 
     Source: https://www.neighborhoodscout.com/blog/top100dangerous
     '''
     city = str()
@@ -102,7 +106,10 @@ def create_dangerous_cities_table(cur, conn):
 
 def create_safe_cities_table(cur, conn):
     '''
-    This function uses a website to webscrape the names of the top 100 most safe US cities. 
+    This function uses a website to webscrape the names of the top 100 most safe 
+    US cities by selecting 25 at a time, and adding them to the database.
+    After separating the city name from the state, it assigns the city name 
+    an id and inserts the state_id as a foreign key.
     Source: https://www.safehome.org/safest-cities/
     '''
     city = str()
@@ -138,6 +145,7 @@ def create_safe_cities_table(cur, conn):
     cur.execute('SELECT COUNT(*) FROM Safe_Cities')
     row_count = cur.fetchone()[0]
     if row_count == 0:
+        print("Collecting Web Data...(1/4)")
         for i in range(25):
             state = stateList[i]
             cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
@@ -145,6 +153,7 @@ def create_safe_cities_table(cur, conn):
             cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
         conn.commit()
     elif row_count == 25:
+        print("Collecting Web Data...(2/4)")
         for i in range(25, 50):
             state = stateList[i]
             cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
@@ -152,6 +161,7 @@ def create_safe_cities_table(cur, conn):
             cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
         conn.commit()
     elif row_count == 50:
+        print("Collecting Web Data...(3/4)")
         for i in range(50, 75):
             state = stateList[i]
             cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
@@ -159,18 +169,23 @@ def create_safe_cities_table(cur, conn):
             cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
         conn.commit()  
     elif row_count == 75:
+        print("Collecting Web Data...(4/4)")
         for i in range(75, 100):
             state = stateList[i]
             cur.execute("SELECT id FROM States WHERE abbreviation = ?", (state,))
             state_id = cur.fetchone()[0]
             cur.execute("INSERT INTO Safe_Cities (id,city,state_id) VALUES (?,?,?)",(i,cityList[i],state_id))        
         conn.commit()  
+    
+    print("Finished")
 
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = create_database('crime.db')
     create_state_table(cur, conn)
+
     create_dangerous_cities_table(cur, conn)
+    
     create_safe_cities_table(cur, conn)
     
 if __name__ == "__main__":
