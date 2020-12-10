@@ -149,8 +149,10 @@ def state_city_counts_bar_viz(cur, conn, tlsafe, tldang):
     for tup in sorted_dang_y:
         y_dang_values.append(tup[1])
 
+    sorted_x_states = sorted(x_states_list)
+
     # data to plot
-    n_groups = len(x_states_list)    
+    n_groups = len(sorted_x_states)    
     # create plot
     fig, ax = plt.subplots()
     index = np.arange(n_groups)
@@ -170,9 +172,8 @@ def state_city_counts_bar_viz(cur, conn, tlsafe, tldang):
     plt.xlabel('States')
     plt.ylabel("City Counts")
     plt.title("Safe and Dangerous City Counts by State")
-    plt.xticks(index + bar_width, x_states_list, rotation=90, fontsize=6,)
+    plt.xticks(index + bar_width, sorted_x_states, rotation=90, fontsize=6,)
     plt.legend()
-    plt.grid(zorder=0)
     
     plt.tight_layout()
     plt.show()
@@ -227,7 +228,7 @@ def most_arrests_for_each_state(cur, conn, year):
         else:
             category = category.capitalize()
 
-        cur.execute('SELECT state_name FROM States JOIN State_Crimes on States.abbreviation = State_Crimes.state_id WHERE State_Crimes.state_id = ?', (state_abbrev,))
+        cur.execute('SELECT state_name FROM States JOIN State_Crimes ON States.id = State_Crimes.state_id WHERE State_Crimes.state_id = ?', (state_abbrev,))
         state_name = cur.fetchone()[0]
 
         list_of_states_with_category_and_amount.append(("State: " + state_name, "Category: " + category, "Arrests: " + str(maximum)))
@@ -721,7 +722,7 @@ def main():
     #write_file("crime_information.txt", "Count of How Many of the Top 100 Safest Cities are in Each State \n" + str(state_with_most_safe_cities(cur, conn)) + ".\n\n")
     #write_file("crime_information.txt", "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + str(state_with_most_dangerous_cities(cur, conn)) + ".\n\n")
    
-    #calling of 3 OR 5 visualizations
+    #calling of 7 visualizations
 
     #plots the amount of dangerous cities and safe cities by state in a bar chart
     state_city_counts_bar_viz(cur, conn, state_with_most_safe_cities(cur,conn), state_with_most_dangerous_cities(cur,conn))
