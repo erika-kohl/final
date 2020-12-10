@@ -19,11 +19,6 @@ def write_file(filename, information):
     with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), filename), "w") as out_file:
         out_file.write(information)
 
-    #with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), filename), "r+") as out_file:
-    #    text = out_file.read()
-    #    if information not in text:
-    #        out_file.write(information)
-
 #using crime_data.py and table Dangerous_Cities
 def state_with_most_dangerous_cities(cur, conn):
     cur.execute('SELECT state_id FROM Dangerous_Cities')
@@ -703,27 +698,11 @@ def top_arrest_categories_bar_viz(cur, conn, tl2017, tl2018, title, y_axis_title
 def main():
     cur, conn = access_database('crime.db')
 
-    information = "The total number of arrests in 2017 in the United States is " + str(arrests_in_year(cur, conn, 2017)) + ".\nThe total number of arrests in 2018 in the United States is " + str(arrests_in_year(cur, conn, 2018)) + ".\n" + arrests_increase_or_decrease(cur, conn) + "Most Amount of Arrests Come From Which Category for Each State in 2017 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2017)) + ".\n\n" + "Most Amount of Arrests Come From Which Category for Each State in 2018 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2018)) + ".\n\n" + "The average age for dangerous cities is: " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n" + "The average age for safe cities is: " + average_age_in_safe_city(cur, conn) + " years old.\n\n" + "Count of How Many of the Top 100 Safest Cities are in Each State \n" + str(state_with_most_safe_cities(cur, conn))+ ".\n\n" + "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + str(state_with_most_dangerous_cities(cur, conn))+ ".\n\n"
+    information = "The total number of arrests in 2017 in the United States is " + str(arrests_in_year(cur, conn, 2017)) + ".\nThe total number of arrests in 2018 in the United States is " + str(arrests_in_year(cur, conn, 2018)) + ".\n" + arrests_increase_or_decrease(cur, conn) + "Most Amount of Arrests Come From Which Category for Each State in 2017 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2017)) + "\n\n" + "Most Amount of Arrests Come From Which Category for Each State in 2018 (excluding the Other Category) \n" + str(most_arrests_for_each_state(cur, conn, 2018)) + "\n\n" + "The average median age for people in dangerous cities is " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n" + "The average median age for people in safe cities is " + average_age_in_safe_city(cur, conn) + " years old.\n\n" + "Count of How Many of the Top 100 Safest Cities are in Each State \n" + str(state_with_most_safe_cities(cur, conn))+ "\n\n" + "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + str(state_with_most_dangerous_cities(cur, conn))+ "\n\n"
 
     write_file("crime_information.txt", information)
-
-    #write_file("crime_information.txt", "The total number of arrests in 2017 in the United States is " + str(arrests_in_year(cur, conn, 2017)) + ".\nThe total number of arrests in 2018 in the United States is " + str(arrests_in_year(cur, conn, 2018)) + ".\n")
-
-    #if arrests_in_year(cur, conn, 2017) < arrests_in_year(cur, conn, 2018):
-    #    write_file("crime_information.txt", "The total number of arrests increased from 2017 to 2018.\n\n")
-    #else:
-    #    write_file("crime_information.txt", "The total number of arrests decreased from 2017 to 2018.\n\n")
-
-    #write_file("crime_information.txt", "Most Amount of Arrests Come From Which Category for Each State in 2017 (excluding the Other Category) \n" + most_arrests_for_each_state(cur, conn, 2017) + ".\n\n")
-    #write_file("crime_information.txt", "Most Amount of Arrests Come From Which Category for Each State in 2018 (excluding the Other Category) \n" + most_arrests_for_each_state(cur, conn, 2018) + ".\n\n")
-
-    #write_file("crime_information.txt", "The average age for dangerous cities is: " + average_age_in_dangerous_city(cur, conn) + " years old.\n\n")
-    #write_file("crime_information.txt", "The average age for safe cities is: " + average_age_in_safe_city(cur, conn) + " years old.\n\n")
-    #write_file("crime_information.txt", "Count of How Many of the Top 100 Safest Cities are in Each State \n" + str(state_with_most_safe_cities(cur, conn)) + ".\n\n")
-    #write_file("crime_information.txt", "Count of How Many of the Top 100 Most Dangerous Cities are in Each State \n" + str(state_with_most_dangerous_cities(cur, conn)) + ".\n\n")
    
     #calling of 7 visualizations
-
     #plots the amount of dangerous cities and safe cities by state in a bar chart
     state_city_counts_bar_viz(cur, conn, state_with_most_safe_cities(cur,conn), state_with_most_dangerous_cities(cur,conn))
     #plots state frequencies of top crime categories
